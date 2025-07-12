@@ -75,7 +75,7 @@ class TestSchemaParser < Minitest::Test
 
   def test_parse_with_unknown_format
     parser = DroppableTable::SchemaParser.new("unknown.txt")
-    
+
     assert_raises(DroppableTable::SchemaNotFoundError) do
       parser.parse
     end

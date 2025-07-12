@@ -19,11 +19,11 @@ class TestAnalyzer < Minitest::Test
     analyzer.analyze
 
     # Should have detected schema tables
-    assert analyzer.schema_tables.size > 0
-    assert analyzer.schema_tables["primary"].size > 0
+    assert analyzer.schema_tables.size.positive?
+    assert analyzer.schema_tables["primary"].size.positive?
 
     # Should have collected model tables
-    assert analyzer.model_tables.size > 0
+    assert analyzer.model_tables.size.positive?
     assert analyzer.model_tables.include?("users")
     assert analyzer.model_tables.include?("roles")
 
@@ -44,7 +44,7 @@ class TestAnalyzer < Minitest::Test
     analyzer.analyze
 
     report = analyzer.report(format: :text)
-    
+
     assert report.include?("DroppableTable Analysis Report")
     assert report.include?("Total tables in schema:")
     assert report.include?("Potentially droppable tables:")
@@ -56,9 +56,9 @@ class TestAnalyzer < Minitest::Test
     analyzer.analyze
 
     report = analyzer.report(format: :json)
-    
+
     assert report.is_a?(Hash)
-    assert report[:summary][:total_tables] > 0
+    assert report[:summary][:total_tables].positive?
     assert report[:droppable_tables].include?("abandoned_logs")
     refute report[:droppable_tables].include?("legacy_data") # Excluded by config
     assert report[:model_tables].include?("users")
@@ -67,7 +67,7 @@ class TestAnalyzer < Minitest::Test
   end
 
   def test_excludes_configured_tables
-    # Test with the existing config that excludes legacy_data  
+    # Test with the existing config that excludes legacy_data
     analyzer = DroppableTable::Analyzer.new
     analyzer.analyze
 
@@ -75,7 +75,7 @@ class TestAnalyzer < Minitest::Test
     refute analyzer.droppable_tables.include?("legacy_data")
     # But should still include other droppable tables
     assert analyzer.droppable_tables.include?("abandoned_logs")
-    
+
     # Test with a custom config that excludes abandoned_logs instead
     config_content = <<~YAML
       excluded_tables:
@@ -117,9 +117,9 @@ class TestAnalyzer < Minitest::Test
 
   def test_raises_error_without_schema
     Dir.chdir(@original_dir)
-    
+
     analyzer = DroppableTable::Analyzer.new
-    
+
     assert_raises(DroppableTable::SchemaNotFoundError) do
       analyzer.analyze
     end
@@ -130,14 +130,14 @@ class TestAnalyzer < Minitest::Test
     unless ActiveRecord::Base.connection.respond_to?(:migration_context)
       skip "migration_context not available in this Rails version"
     end
-    
+
     # Mock pending migrations
     migration_context = Minitest::Mock.new
     migration_context.expect(:needs_migration?, true)
-    
+
     ActiveRecord::Base.connection.stub(:migration_context, migration_context) do
       analyzer = DroppableTable::Analyzer.new
-      
+
       assert_raises(DroppableTable::MigrationPendingError) do
         analyzer.send(:check_migration_status)
       end

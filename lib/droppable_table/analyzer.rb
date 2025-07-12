@@ -57,7 +57,7 @@ module DroppableTable
       begin
         # Ensure database connection exists
         ActiveRecord::Base.connection
-        
+
         # Try to check for pending migrations using available methods
         if ActiveRecord::Base.connection.respond_to?(:migration_context)
           # Rails 6.0+
@@ -153,7 +153,7 @@ module DroppableTable
     end
 
     def identify_droppable_tables
-      all_schema_tables = @schema_tables.values.flatten.map { |t| t[:name] }.to_set
+      all_schema_tables = @schema_tables.values.flatten.to_set { |t| t[:name] }
 
       # Tables that exist in schema but have no corresponding model
       @droppable_tables = all_schema_tables.reject do |table|
@@ -190,7 +190,7 @@ module DroppableTable
     def generate_text_report
       report = []
       report << "DroppableTable Analysis Report"
-      report << "=" * 40
+      report << ("=" * 40)
       report << ""
 
       # Summary

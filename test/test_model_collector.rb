@@ -7,10 +7,10 @@ class TestModelCollector < Minitest::Test
     # Change to dummy app directory for these tests
     @original_dir = Dir.pwd
     Dir.chdir(File.join(__dir__, "fixtures", "dummy_app"))
-    
+
     # Set Rails env to test
     ENV["RAILS_ENV"] = "test"
-    
+
     # Load Rails environment
     require File.join(Dir.pwd, "config", "environment")
   end
@@ -23,8 +23,8 @@ class TestModelCollector < Minitest::Test
     collector = DroppableTable::ModelCollector.new
     collector.collect
 
-    assert collector.models.size > 0
-    assert collector.table_mapping.size > 0
+    assert collector.models.size.positive?
+    assert collector.table_mapping.size.positive?
   end
 
   def test_table_names_returns_unique_set
@@ -79,14 +79,14 @@ class TestModelCollector < Minitest::Test
   def test_raises_error_without_rails
     # Save original Rails constant
     rails_const = Rails if defined?(Rails)
-    
+
     # Temporarily remove Rails
     Object.send(:remove_const, :Rails) if defined?(Rails)
-    
+
     # Create new collector in a different directory
     Dir.chdir(@original_dir) do
       collector = DroppableTable::ModelCollector.new
-      
+
       assert_raises(DroppableTable::RailsNotFoundError) do
         collector.send(:ensure_rails_loaded)
       end

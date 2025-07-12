@@ -51,7 +51,7 @@ module DroppableTable
     def load_user_config
       # TODO: Load user configuration from YAML file
       config = load_yaml_file(@config_file_path)
-      return unless config && config.is_a?(Hash)
+      return unless config.is_a?(Hash)
 
       @excluded_tables = Set.new(config["excluded_tables"] || [])
       @excluded_gems = Set.new(config["excluded_gems"] || [])
