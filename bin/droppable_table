@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative "../lib/droppable_table"
+require 'bundler/setup'
+require 'droppable_table'
 
 DroppableTable::CLI.start(ARGV)

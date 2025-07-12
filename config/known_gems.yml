@@ -1,0 +1,34 @@
+# Tables created by popular gems
+papertrail:
+  - versions
+  - version_associations
+
+delayed_job:
+  - delayed_jobs
+
+devise:
+  - users  # Note: This might be customized
+
+friendly_id:
+  - friendly_id_slugs
+
+acts_as_taggable:
+  - tags
+  - taggings
+
+impressionist:
+  - impressions
+
+audited:
+  - audits
+
+ahoy:
+  - ahoy_visits
+  - ahoy_events
+
+blazer:
+  - blazer_queries
+  - blazer_audits
+  - blazer_dashboards
+  - blazer_dashboard_queries
+  - blazer_checks

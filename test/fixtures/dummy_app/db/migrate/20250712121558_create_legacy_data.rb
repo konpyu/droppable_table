@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateLegacyData < ActiveRecord::Migration[8.0]
   def change
     create_table :legacy_data do |t|
