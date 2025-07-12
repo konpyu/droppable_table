@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'yaml'
-require 'pathname'
+require "yaml"
+require "pathname"
 
 module DroppableTable
   class Config
-    DEFAULT_CONFIG_FILE = 'droppable_table.yml'
-    RAILS_INTERNAL_TABLES_FILE = File.expand_path('../../../config/rails_internal_tables.yml', __FILE__)
-    KNOWN_GEMS_FILE = File.expand_path('../../../config/known_gems.yml', __FILE__)
+    DEFAULT_CONFIG_FILE = "droppable_table.yml"
+    RAILS_INTERNAL_TABLES_FILE = File.expand_path("../../config/rails_internal_tables.yml", __dir__)
+    KNOWN_GEMS_FILE = File.expand_path("../../config/known_gems.yml", __dir__)
 
     attr_reader :excluded_tables, :excluded_gems, :strict_mode, :config_file_path
 
@@ -30,43 +30,50 @@ module DroppableTable
     end
 
     def all_excluded_tables
-      excluded_tables + rails_internal_tables + gem_excluded_tables
+      Set.new(excluded_tables) + Set.new(rails_internal_tables) + gem_excluded_tables
     end
 
     def strict_mode_enabled?
-      strict_mode['enabled'] == true
+      strict_mode["enabled"] == true
     end
 
     def baseline_file
-      strict_mode['baseline_file'] || '.droppable_table_baseline.json'
+      strict_mode["baseline_file"] || ".droppable_table_baseline.json"
     end
 
     private
 
     def load_default_config
-      # TODO: Load default Rails internal tables and known gems
+      @rails_internal_tables = load_yaml_file(RAILS_INTERNAL_TABLES_FILE) || []
+      @known_gem_tables = load_yaml_file(KNOWN_GEMS_FILE) || {}
     end
 
     def load_user_config
       # TODO: Load user configuration from YAML file
       config = load_yaml_file(@config_file_path)
-      return unless config
+      return unless config && config.is_a?(Hash)
 
-      @excluded_tables = Set.new(config['excluded_tables'] || [])
-      @excluded_gems = Set.new(config['excluded_gems'] || [])
-      @strict_mode = config['strict_mode'] || {}
+      @excluded_tables = Set.new(config["excluded_tables"] || [])
+      @excluded_gems = Set.new(config["excluded_gems"] || [])
+      @strict_mode = config["strict_mode"] || {}
     end
 
     def load_yaml_file(path)
       return [] unless File.exist?(path)
+
       YAML.load_file(path) || []
-    rescue => e
+    rescue StandardError
       []
     end
 
     def gem_excluded_tables
-      # TODO: Build list of tables from excluded gems
-      Set.new
+      tables = Set.new
+
+      excluded_gems.each do |gem_name|
+        tables += known_gem_tables[gem_name] if known_gem_tables.is_a?(Hash) && known_gem_tables[gem_name]
+      end
+
+      tables
     end
   end
 end

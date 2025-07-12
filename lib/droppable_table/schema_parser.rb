@@ -29,14 +29,24 @@ module DroppableTable
         :ruby
       when /\.sql$/
         :sql
-      else
-        nil
       end
     end
 
     def parse_ruby_schema
-      # TODO: Parse schema.rb
-      []
+      return [] unless File.exist?(schema_path)
+
+      tables = []
+      File.readlines(schema_path).each do |line|
+        next unless (match = line.match(/^\s*create_table\s+"([^"]+)"/))
+
+        table_name = match[1]
+        tables << {
+          name: table_name,
+          type: "table"
+        }
+      end
+
+      tables
     end
 
     def parse_sql_schema

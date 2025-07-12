@@ -1,0 +1,13 @@
+# Test configuration for droppable_table gem
+
+# Tables to exclude from the droppable list
+excluded_tables:
+  - legacy_data  # Let's say we want to keep this for historical reasons
+
+# Gems to exclude (in addition to the default list)
+excluded_gems: []
+
+# Strict mode settings for CI integration
+strict_mode:
+  enabled: true
+  baseline_file: .droppable_table_baseline.json

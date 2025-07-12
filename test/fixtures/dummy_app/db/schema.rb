@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_12_121558) do
+ActiveRecord::Schema[8.0].define(version: 20_250_712_121_558) do
   create_table "abandoned_logs", force: :cascade do |t|
     t.text "message"
     t.datetime "created_at", null: false

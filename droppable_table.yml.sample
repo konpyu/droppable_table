@@ -1,0 +1,19 @@
+# Example configuration file for droppable_table gem
+# Copy this file to droppable_table.yml and customize as needed
+
+# Tables to exclude from the droppable list (user defined)
+excluded_tables:
+  - countries
+  - languages
+  - static_data
+
+# Gems to exclude (in addition to the default list)
+excluded_gems:
+  - papertrail
+  - delayed_job
+  - custom_gem
+
+# Strict mode settings for CI integration
+strict_mode:
+  enabled: false
+  baseline_file: .droppable_table_baseline.json
