@@ -7,3 +7,13 @@
 /spec/reports/
 /tmp/
 instruction*.md
+
+# Built gems
+*.gem
+
+# Test artifacts
+.droppable_table_baseline.json
+test/fixtures/dummy_app/.droppable_table_baseline.json
+
+# Development documents
+TEST_SUMMARY.md
