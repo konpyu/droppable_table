@@ -35,6 +35,22 @@ gem build droppable_table.gemspec
 gem install ./droppable_table-0.1.0.gem
 ```
 
+### Release Process
+```bash
+# Ensure all tests pass
+bundle exec rake test
+
+# Check RuboCop
+bundle exec rubocop
+
+# Build and test locally
+gem build droppable_table.gemspec
+gem install ./droppable_table-*.gem
+
+# Release to RubyGems (requires credentials)
+bundle exec rake release
+```
+
 ### Testing the Gem
 ```bash
 # From a Rails application directory
@@ -42,6 +58,9 @@ bundle exec droppable_table analyze
 bundle exec droppable_table analyze --json
 bundle exec droppable_table analyze --strict
 bundle exec droppable_table version
+
+# Test with GitHub source
+# In target app's Gemfile: gem 'droppable_table', github: 'konpyu/droppable_table'
 ```
 
 ## Architecture
@@ -100,6 +119,21 @@ Users can create `droppable_table.yml` to:
 - Exclude tables from specific gems
 - Enable strict mode for CI (fails if new droppable tables are found)
 
+Sample configuration:
+```yaml
+excluded_tables:
+  - legacy_payments
+  - archived_data
+
+excluded_gems:
+  - papertrail
+  - delayed_job
+
+strict_mode:
+  enabled: true
+  baseline_file: .droppable_table_baseline.json
+```
+
 ### RuboCop Configuration
 
 The project enforces Ruby style guidelines with some customizations:
@@ -107,3 +141,14 @@ The project enforces Ruby style guidelines with some customizations:
 - Line length: 120 characters
 - Method length: 30 lines (relaxed for complex analysis methods)
 - Test files excluded from some metrics
+
+## Important Implementation Notes
+
+### Migration Status Checking
+The migration check in `Analyzer#check_migration_status` is skipped in test environment and handles different Rails versions gracefully by trying multiple approaches.
+
+### Executable Setup
+The gem's executable is configured in `gemspec` with `spec.executables = ["droppable_table"]` and must be included when building the gem.
+
+### Test Execution Context
+Some tests (particularly `test_model_collector.rb` and `test_analyzer.rb`) must be run from within the dummy app directory to properly load the Rails environment.
