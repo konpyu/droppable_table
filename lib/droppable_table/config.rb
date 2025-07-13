@@ -61,7 +61,8 @@ module DroppableTable
     def load_yaml_file(path)
       return [] unless File.exist?(path)
 
-      YAML.load_file(path) || []
+      content = File.read(path)
+      YAML.safe_load(content, permitted_classes: [Symbol], aliases: true) || []
     rescue StandardError
       []
     end
