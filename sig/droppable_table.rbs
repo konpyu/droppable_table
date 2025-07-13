@@ -1,4 +1,103 @@
 module DroppableTable
   VERSION: String
-  # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+
+  class RailsNotFoundError < StandardError
+  end
+
+  class MigrationPendingError < StandardError
+  end
+
+  class SchemaNotFoundError < StandardError
+  end
+
+  class Analyzer
+    attr_reader config: Config
+    attr_reader schema_tables: Hash[String, Array[String]]
+    attr_reader model_tables: Hash[String, Array[String]]
+    attr_reader sti_base_tables: Set[String]
+    attr_reader habtm_tables: Set[String]
+    attr_reader droppable_tables: Array[String]
+
+    def initialize: (Config config) -> void
+    def analyze: () -> void
+    def report: (?format: :text | :json) -> String
+
+    private
+    def check_migration_status: () -> void
+    def detect_schema_format: () -> (:ruby | :sql)
+    def collect_schema_tables: () -> void
+    def load_models_and_collect_tables: () -> void
+    def identify_droppable_tables: () -> void
+    def find_schema_files: () -> Array[String]
+    def extract_database_name: (String path) -> String
+    def text_report: () -> String
+    def json_report: () -> Hash[Symbol, untyped]
+  end
+
+  class Config
+    DEFAULT_CONFIG_FILE: String
+    RAILS_INTERNAL_TABLES_FILE: String
+    KNOWN_GEMS_FILE: String
+
+    attr_reader excluded_tables: Set[String]
+    attr_reader excluded_gems: Set[String]
+    attr_reader strict_mode: Hash[String, untyped]
+    attr_reader config_file_path: String
+
+    def initialize: (?String? config_file_path) -> void
+    def rails_internal_tables: () -> Array[String]
+    def known_gem_tables: () -> Hash[String, Array[String]]
+    def all_excluded_tables: () -> Set[String]
+    def strict_mode_enabled?: () -> bool
+    def baseline_file: () -> String
+
+    private
+    def load_default_config: () -> void
+    def load_user_config: () -> void
+    def load_yaml_file: (String path) -> untyped
+    def gem_excluded_tables: () -> Set[String]
+  end
+
+  class ModelCollector
+    attr_reader model_tables: Hash[String, Array[String]]
+    attr_reader sti_base_tables: Set[String]
+    attr_reader habtm_tables: Set[String]
+
+    def initialize: () -> void
+    def collect: () -> void
+
+    private
+    def find_rails_root: () -> String
+    def load_rails_environment: (String rails_root) -> void
+    def collect_all_models: () -> Array[Class]
+    def collect_models_from_app: () -> Array[Class]
+    def collect_models_from_engines: () -> Array[Class]
+    def process_model: (Class model) -> void
+    def extract_database_name: (Class model) -> String
+    def extract_table_name: (Class model) -> String
+    def collect_sti_base_tables: (Class model) -> void
+    def collect_habtm_tables: (Class model) -> void
+  end
+
+  class SchemaParser
+    attr_reader schema_path: String
+    attr_reader tables: Array[String]
+
+    def initialize: (String schema_path) -> void
+    def parse: () -> Array[String]
+
+    private
+    def parse_ruby_schema: () -> Array[String]
+    def parse_sql_schema: () -> Array[String]
+  end
+
+  class CLI < Thor
+    def analyze: () -> void
+    def version: () -> void
+    def self.exit_on_failure?: () -> bool
+
+    private
+    def handle_strict_mode: (Analyzer analyzer, Config config) -> void
+    def error_exit: (String message) -> void
+  end
 end
