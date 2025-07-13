@@ -20,7 +20,9 @@ A Ruby gem that helps identify potentially droppable tables in Rails application
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'droppable_table'
+group :development, :test do
+  gem 'droppable_table'
+end
 ```
 
 And then execute:
@@ -38,7 +40,10 @@ Or install it yourself as:
 From your Rails application root directory:
 
 ```bash
-# Analyze and show results
+# Analyze and show results (default command)
+bundle exec droppable_table
+
+# Same as above - analyze is the default command
 bundle exec droppable_table analyze
 
 # Output in JSON format
@@ -46,6 +51,9 @@ bundle exec droppable_table analyze --json
 
 # Use custom configuration file
 bundle exec droppable_table analyze --config custom_config.yml
+
+# Show version
+bundle exec droppable_table version
 ```
 
 ### Configuration
